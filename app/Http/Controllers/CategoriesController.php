@@ -6,14 +6,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use App\Models\Categories;
-use App\Models\Product;
+
 
 class CategoriesController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth:sanctum'); // Wajib token
-    }
+    public function __construct() {}
 
     // GET /api/categories
     public function index()
@@ -25,9 +22,9 @@ class CategoriesController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'product_id' => 'required|string|exists:products,product_id',
             'name' => 'required|string',
             'description' => 'required|string',
+            'product_id' => 'nullable|string|exists:products,product_id'
         ]);
 
         if ($validator->fails()) {
@@ -36,9 +33,9 @@ class CategoriesController extends Controller
 
         $category = Categories::create([
             'category_id' => (string) Str::ulid(),
-            'product_id' => $request->product_id,
             'name' => $request->name,
             'description' => $request->description,
+            'product_id' => $request->product_id
         ]);
         return response()->json($category, 201);
     }
@@ -65,16 +62,16 @@ class CategoriesController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'product_id' => 'sometimes|string|exists:products,product_id',
             'name' => 'sometimes|string',
             'description' => 'sometimes|string',
+            'product_id' => 'nullable|string|exists:products,product_id'
         ]);
 
         if ($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
 
-        $category->update($request->only(['product_id', 'name', 'description']));
+        $category->update($request->only(['name', 'description', 'product_id']));
 
         return response()->json($category);
     }

@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
 class ProductController extends Controller
@@ -15,26 +14,22 @@ class ProductController extends Controller
     }
 
     public function store(Request $request)
-{
-    $request->validate([
-        'name' => 'required|string',
-        'description' => 'required|string',
-        'price' => 'required|integer',
-        'stock' => 'required|integer',
-        'category_id' => 'required|string',
-    ]);
+    {
+        $validated = $request->validate([
+            'name' => 'required|string',
+            'description' => 'required|string',
+            'price' => 'required|numeric',
+            'stock' => 'required|integer',
+            'category_id' => 'required|string'
+        ]);
 
-    $product = Product::create([
-        'product_id' => Str::uuid(), // atau Str::random(10) jika ingin format acak biasa
-        'name' => $request->name,
-        'description' => $request->description,
-        'price' => $request->price,
-        'stock' => $request->stock,
-        'category_id' => $request->category_id,
-    ]);
-
-    return response()->json($product, 201);
-}
+        $product = Product::create([
+            'product_id' => Str::uuid(),
+            ...$validated
+        ]);
+        
+        return response()->json($product, 201);
+    }
 
     public function show($id)
     {
@@ -46,7 +41,15 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        $product->update($request->all());
+        $validated = $request->validate([
+            'name' => 'sometimes|string',
+            'description' => 'sometimes|string',
+            'price' => 'sometimes|numeric',
+            'stock' => 'sometimes|integer',
+            'category_id' => 'sometimes|string'
+        ]);
+
+        $product->update($validated);
 
         return response()->json($product);
     }

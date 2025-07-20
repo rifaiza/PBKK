@@ -14,9 +14,10 @@ class Categories extends Model
     protected $keyType = 'string';
 
     protected $fillable = [
-        'product_id',
+        'category_id',
         'name',
         'description',
+        'product_id'
     ];
 
     protected static function boot()
